@@ -156,59 +156,7 @@ async function loadImages() {
     });
 }
 
-// 削除ボタン
-const deleteButton = document.getElementById('delete-button');
-let currentImage = null; // 現在表示している画像情報を保持する変数
 
-// モーダルを開く関数を修正
-function openModal(image) {
-    modalImage.src = image.image_url;
-    modalTitle.textContent = image.title;
-    modalDescription.textContent = image.description;
-    modalAuthor.textContent = `${image.user_name} (${image.user_id})`;
-    modal.classList.remove('hidden');
-    
-    currentImage = image; // 表示している画像情報を保持
-
-    // 自分の投稿でなければ削除ボタンを隠す
-    if (currentUser?.id === image.user_id) {
-        deleteButton.style.display = 'block';
-    } else {
-        deleteButton.style.display = 'none';
-    }
-}
-
-// 削除ボタンのクリックイベント
-deleteButton.addEventListener('click', async () => {
-    if (!currentImage || !currentUser || currentUser.id !== currentImage.user_id) {
-        alert("削除する権限がありません。");
-        return;
-    }
-
-    // 削除の最終確認
-    if (!confirm("本当にこの画像を削除しますか？この操作は元に戻せません。")) {
-        return;
-    }
-
-    try {
-        // 1. ストレージから画像ファイルを削除
-        const imagePath = currentImage.image_url.split('/images/')[1];
-        const { error: storageError } = await supabaseClient.storage.from('images').remove([imagePath]);
-        if (storageError) throw storageError;
-
-        // 2. データベースから画像情報を削除
-        const { error: dbError } = await supabaseClient.from('images').delete().eq('id', currentImage.id);
-        if (dbError) throw dbError;
-
-        alert("削除が完了しました。");
-        modal.classList.add('hidden'); // モーダルを閉じる
-        loadImages(); // ギャラリーを再読み込み
-
-    } catch (error) {
-        console.error("削除エラー:", error);
-        alert("削除に失敗しました。");
-    }
-});
 
 // (createImageCard, openModal, イベントリスナーは変更なし)
 function createImageCard(image, id) {
