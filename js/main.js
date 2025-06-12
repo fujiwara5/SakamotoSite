@@ -1,9 +1,9 @@
-// js/main.js
+// js/main.js (修正済み)
 
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
-// Supabaseクライアントの初期化
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// 【修正点】変数名を `supabaseClient` に変更し、正しくクライアントを作成します。
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // --- DOM要素の取得 (変更なし) ---
 const userIdSpan = document.getElementById('userId');
@@ -14,7 +14,6 @@ const submitButton = document.getElementById('submit-button');
 const uploadIndicator = document.getElementById('upload-indicator');
 const gallery = document.getElementById('gallery');
 const loadingGallery = document.getElementById('loading-gallery');
-// (モーダル関連の要素も同様に取得)
 const modal = document.getElementById('modal');
 const modalImage = document.getElementById('modal-image');
 const modalTitle = document.getElementById('modal-title');
@@ -25,37 +24,35 @@ const modalClose = document.getElementById('modal-close');
 let currentUser = null;
 
 // --- 認証処理 ---
-// ログイン状態の変化を監視
-supabase.auth.onAuthStateChange((event, session) => {
-    // ログインしていたら session にユーザー情報が入る
+// 【修正点】`supabase` を `supabaseClient` に変更
+supabaseClient.auth.onAuthStateChange((event, session) => {
     currentUser = session?.user ?? null;
     updateUI();
 });
 
 // UIを更新する関数
 function updateUI() {
-    // 既存のログイン/ログアウトボタンがあれば削除
     document.getElementById('login-button')?.remove();
     document.getElementById('logout-button')?.remove();
 
     if (currentUser) {
-        // ログインしている場合
         userIdSpan.textContent = currentUser.id;
         const logoutButton = document.createElement('button');
         logoutButton.id = 'logout-button';
         logoutButton.textContent = 'ログアウト';
         logoutButton.className = 'ml-4 bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-xs';
-        logoutButton.onclick = async () => await supabase.auth.signOut();
+        // 【修正点】`supabase` を `supabaseClient` に変更
+        logoutButton.onclick = async () => await supabaseClient.auth.signOut();
         header.querySelector('.text-xs').appendChild(logoutButton);
         uploadSection.style.display = 'block';
     } else {
-        // ログアウトしている場合
         userIdSpan.textContent = '未ログイン';
         const loginButton = document.createElement('button');
         loginButton.id = 'login-button';
         loginButton.textContent = 'Googleでログイン';
         loginButton.className = 'ml-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded';
-        loginButton.onclick = () => supabase.auth.signInWithOAuth({ provider: 'google' });
+        // 【修正点】`supabase` を `supabaseClient` に変更
+        loginButton.onclick = () => supabaseClient.auth.signInWithOAuth({ provider: 'google' });
         header.appendChild(loginButton);
         uploadSection.style.display = 'none';
     }
@@ -83,28 +80,28 @@ form.addEventListener('submit', async (e) => {
     uploadIndicator.classList.remove('hidden');
 
     try {
-        // 1. Supabase Storageに画像をアップロード
         const filePath = `${currentUser.id}/${Date.now()}_${imageFile.name}`;
-        const { error: uploadError } = await supabase.storage.from('images').upload(filePath, imageFile);
+        // 【修正点】`supabase` を `supabaseClient` に変更
+        const { error: uploadError } = await supabaseClient.storage.from('images').upload(filePath, imageFile);
         if (uploadError) throw uploadError;
 
-        // 2. アップロードした画像の公開URLを取得
-        const { data: urlData } = supabase.storage.from('images').getPublicUrl(filePath);
+        // 【修正点】`supabase` を `supabaseClient` に変更
+        const { data: urlData } = supabaseClient.storage.from('images').getPublicUrl(filePath);
         const imageUrl = urlData.publicUrl;
 
-        // 3. Supabase Databaseに画像情報を保存
-        const { error: insertError } = await supabase.from('images').insert({
+        // 【修正点】`supabase` を `supabaseClient` に変更
+        const { error: insertError } = await supabaseClient.from('images').insert({
             title: title,
             description: description,
             image_url: imageUrl,
             user_id: currentUser.id,
-            user_name: currentUser.user_metadata?.full_name || currentUser.email // Google名またはEmail
+            user_name: currentUser.user_metadata?.full_name || currentUser.email
         });
         if (insertError) throw insertError;
         
         form.reset();
         alert("投稿が完了しました！");
-        loadImages(); // ギャラリーを再読み込み
+        loadImages();
 
     } catch (error) {
         console.error("投稿エラー:", error.message);
@@ -116,17 +113,16 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-
 // --- 画像一覧の表示処理 ---
 async function loadImages() {
     loadingGallery.style.display = 'block';
     gallery.innerHTML = '';
 
-    // Supabaseのimagesテーブルから全データを取得
-    const { data: images, error } = await supabase
+    // 【修正点】`supabase` を `supabaseClient` に変更
+    const { data: images, error } = await supabaseClient
         .from('images')
         .select('*')
-        .order('created_at', { ascending: false }); // 新しい順に並び替え
+        .order('created_at', { ascending: false });
 
     if (error) {
         console.error("読み込みエラー:", error);
@@ -136,16 +132,14 @@ async function loadImages() {
 
     loadingGallery.style.display = 'none';
 
-    // 取得したデータでギャラリーを生成
     images.forEach(image => {
         const item = createImageCard(image, image.id);
         gallery.innerHTML += item;
     });
 
-    // 各画像にクリックイベントを追加
     document.querySelectorAll('.gallery-item').forEach(item => {
         item.addEventListener('click', () => {
-            const imageId = parseInt(item.dataset.id, 10); // idは数値
+            const imageId = parseInt(item.dataset.id, 10);
             const imageData = images.find(d => d.id === imageId);
             if(imageData) {
                 openModal(imageData);
@@ -154,12 +148,12 @@ async function loadImages() {
     });
 }
 
-// 画像カードのHTMLを生成する関数 (image.imageUrl を使用)
+// (createImageCard, openModal, イベントリスナーは変更なし)
 function createImageCard(image, id) {
-    const shortDescription = image.description.length > 50 ? image.description.substring(0, 50) + '...' : image.description;
+    const shortDescription = image.description ? (image.description.length > 50 ? image.description.substring(0, 50) + '...' : image.description) : '';
     return `
-        <div data-id="${id}" class="gallery-item masonry-item ...">
-            <img src="${image.image_url}" alt="${image.title}" ...>
+        <div data-id="${id}" class="gallery-item masonry-item bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-1 transition-all duration-300 cursor-pointer">
+            <img src="${image.image_url}" alt="${image.title}" class="w-full h-auto object-cover" loading="lazy">
             <div class="p-4">
                 <h3 class="font-bold text-lg mb-1 truncate">${image.title}</h3>
                 <p class="text-gray-400 text-sm">${shortDescription}</p>
@@ -168,7 +162,6 @@ function createImageCard(image, id) {
     `;
 }
 
-// モーダルを開く関数 (image.imageUrl, image.user_name などを使用)
 function openModal(image) {
     modalImage.src = image.image_url;
     modalTitle.textContent = image.title;
@@ -177,7 +170,6 @@ function openModal(image) {
     modal.classList.remove('hidden');
 }
 
-// モーダルを閉じるイベントリスナー (変更なし)
 modalClose.addEventListener('click', () => modal.classList.add('hidden'));
 modal.addEventListener('click', (e) => {
     if (e.target === modal) {
