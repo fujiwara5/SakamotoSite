@@ -52,7 +52,15 @@ function updateUI() {
         loginButton.textContent = 'Googleでログイン';
         loginButton.className = 'ml-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded';
         // 【修正点】`supabase` を `supabaseClient` に変更
-        loginButton.onclick = () => supabaseClient.auth.signInWithOAuth({ provider: 'google' });
+        // 修正後のコード
+        loginButton.onclick = () => {
+        supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+            redirectTo: 'https://fujiwara5.github.io/SakamotoSite/'
+            }
+        });
+        };
         header.appendChild(loginButton);
         uploadSection.style.display = 'none';
     }
