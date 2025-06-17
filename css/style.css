@@ -1,38 +1,60 @@
-body {
-    font-family: 'Inter', sans-serif;
-}
-/* スクロールバーのスタイル */
-::-webkit-scrollbar {
-    width: 8px;
-}
-::-webkit-scrollbar-track {
-    background: #1f2937;
-}
-::-webkit-scrollbar-thumb {
-    background: #4b5563;
-    border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #6b7280;
-}
-.masonry-grid {
-    column-gap: 1.5rem;
-}
-.masonry-item {
-    display: inline-block;
+/* ---------------------------------- */
+/* ▼▼▼ 以下のスタイルをファイルに追加 ▼▼▼ */
+/* ---------------------------------- */
+
+/* 下線付きの入力フォームスタイル */
+.form-input-underline {
     width: 100%;
-    margin-bottom: 1.5rem;
-    break-inside: avoid;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #4b5563; /* gray-600 */
+    color: white;
+    padding: 8px 2px;
+    transition: border-color 0.3s;
 }
+
+.form-input-underline:focus {
+    outline: none;
+    border-bottom-color: #a855f7; /* purple-500 */
+}
+
+/* ギャラリー画像のホバースタイルを調整 */
+.gallery-item {
+    background-color: #1f2937; /* gray-800 */
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.2), 0 4px 6px -4px rgba(168, 85, 247, 0.2);
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-item .p-4 {
+    padding: 1rem;
+}
+
+
+/* ------------------------------------ */
+/* ▼▼▼ 既存のローダーのスタイルを変更 ▼▼▼ */
+/* ------------------------------------ */
 .loader {
     border: 4px solid #f3f3f3;
-    border-top: 4px solid #3498db;
+    /* 色とサイズ、アニメーション速度を変更 */
+    border-top: 4px solid #a855f7; /* purple-500 */
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 2s linear infinite;
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
 }

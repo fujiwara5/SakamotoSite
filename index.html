@@ -18,33 +18,59 @@
             <p class="text-xs text-gray-500 mt-2">ユーザーID: <span id="userId" class="font-mono"></span></p>
         </header>
 
-        <div class="mb-12 max-w-2xl mx-auto bg-gray-800 p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-gray-700 pb-2">絵を投稿する</h2>
+        <div class="mb-12 max-w-4xl mx-auto bg-gray-800 p-8 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-6 border-b border-gray-700 pb-4">絵を投稿する</h2>
             <form id="upload-form">
-                <div class="mb-4">
-                    <label for="title" class="block mb-2 text-sm font-medium text-gray-300">タイトル</label>
-                    <input type="text" id="title" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5" placeholder="作品のタイトル" required>
+                <div class="flex flex-col md:flex-row gap-8">
+
+                    <div class="w-full md:w-1/2">
+                        <label for="image-file" class="block cursor-pointer">
+                            <span class="block mb-2 text-sm font-medium text-gray-300">画像ファイル</span>
+                            <div id="image-preview-wrapper" class="relative aspect-square bg-gray-700 rounded-lg flex items-center justify-center">
+                                <div id="image-placeholder" class="text-center text-gray-400">
+                                    <svg class="mx-auto h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                    </svg>
+                                    <p class="mt-2">クリックして画像を選択</p>
+                                </div>
+                                <img id="image-preview" src="" class="hidden absolute inset-0 w-full h-full object-contain rounded-lg">
+                            </div>
+                        </label>
+                        <input type="file" id="image-file" accept="image/*" class="hidden" required>
+                        </div>
+
+                    <div class="w-full md:w-1/2 flex flex-col justify-between">
+                        <div>
+                            <div class="mb-6">
+                                <label for="title" class="block text-sm font-medium text-gray-300">タイトル</label>
+                                <input type="text" id="title" class="form-input-underline" placeholder="作品のタイトル" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="author" class="block text-sm font-medium text-gray-300">作者</label>
+                                <input type="text" id="author" class="form-input-underline" placeholder="あなたの名前" required>
+                            </div>
+                            <div class="mb-6">
+                                <label for="description" class="block text-sm font-medium text-gray-300">作品の説明</label>
+                                <textarea id="description" rows="4" class="form-input-underline" placeholder="作品についてのコメントなど"></textarea>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit" id="submit-button" class="w-full text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-3 text-center transition-all duration-300">
+                                投稿する
+                            </button>
+                            <div id="upload-indicator" class="hidden mt-4 flex items-center justify-center">
+                                <div class="loader"></div>
+                                <p class="ml-4 text-gray-300">アップロード中...</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="mb-4">
-                    <label for="description" class="block mb-2 text-sm font-medium text-gray-300">説明</label>
-                    <textarea id="description" rows="3" class="w-full bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 p-2.5" placeholder="作品についてのコメントなど"></textarea>
-                </div>
-                <div class="mb-6">
-                    <label for="image-file" class="block mb-2 text-sm font-medium text-gray-300">画像ファイル</label>
-                    <input type="file" id="image-file" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-700" required>
-                </div>
-                <button type="submit" id="submit-button" class="w-full text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:bg-gradient-to-l focus:ring-4 focus:outline-none focus:ring-purple-200 font-medium rounded-lg text-sm px-5 py-2.5 text-center transition-all duration-300">
-                    投稿する
-                </button>
             </form>
-            <div id="upload-indicator" class="hidden mt-4 flex items-center justify-center">
-                <div class="loader"></div>
-                <p class="ml-4 text-gray-300">アップロード中...</p>
-            </div>
         </div>
-        
         <div id="gallery" class="masonry-grid columns-1 sm:columns-2 md:columns-3 lg:columns-4">
-             </div>
+            </div>
 
         <div id="loading-gallery" class="text-center py-10">
             <p class="text-gray-400">ギャラリーを読み込んでいます...</p>
@@ -68,7 +94,6 @@
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
